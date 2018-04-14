@@ -98,6 +98,33 @@ func handleServerConnection(conn net.Conn) {
 			}
 			ans.EOF = true
 
+		case "search":
+			var obj RqdataGet
+			tools.FromGob(&obj, d.Data)
+
+			h := map[string]ramstore.Obj{}
+			// Перебираем все элементы
+			ramstore.Foreach(func(k string, v ramstore.Obj) {
+				// Если объект nil то закончили обработку
+				if k == "" {
+					for n, d := range h {
+						err = gw.Encode(Ansdata{Key: n, Obj: d})
+						if err != nil {
+							log.Println("[error]", err)
+							continue
+						}
+					}
+
+					h = map[string]ramstore.Obj{}
+				}
+
+				if strings.Contains(k, obj.Key) {
+					h[k] = v
+				}
+			})
+
+			ans.EOF = true
+
 		case "del":
 			var obj RqdataSet
 			tools.FromGob(&obj, d.Data)
