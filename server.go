@@ -1,7 +1,6 @@
 package ramnet
 
 import (
-	"bytes"
 	"encoding/gob"
 	"log"
 	"net"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/fe0b6/config"
 	"github.com/fe0b6/ramstore"
+	"github.com/fe0b6/tools"
 )
 
 func runServer() (ln net.Listener) {
@@ -58,23 +58,49 @@ func handleServerConnection(conn net.Conn) {
 		switch d.Action {
 		case "set":
 			var obj RqdataSet
-			fromGob(&obj, d.Data)
-			log.Println(obj)
+			tools.FromGob(&obj, d.Data)
 
 			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
 				go transmit(d)
 			}
 
+		case "multi_set":
+			var objs []RqdataSet
+			tools.FromGob(&objs, d.Data)
+
+			for i := range objs {
+				ans.Error = ramstore.Set(objs[i].Key, objs[i].Obj)
+				if ans.Error != "" {
+					break
+				}
+			}
+			if ans.Error == "" {
+				go transmit(d)
+			}
+
 		case "get":
 			var obj RqdataGet
-			fromGob(&obj, d.Data)
+			tools.FromGob(&obj, d.Data)
 
 			ans.Obj, ans.Error = ramstore.Get(obj.Key)
+		case "multi_get":
+			var objs []RqdataGet
+			tools.FromGob(&objs, d.Data)
+
+			for i := range objs {
+				ans.Obj, ans.Error = ramstore.Get(objs[i].Key)
+				err = gw.Encode(Ansdata{Key: objs[i].Key, Obj: ans.Obj})
+				if err != nil {
+					log.Println("[error]", err)
+					break
+				}
+			}
+			ans.EOF = true
 
 		case "del":
 			var obj RqdataSet
-			fromGob(&obj, d.Data)
+			tools.FromGob(&obj, d.Data)
 
 			if !obj.Obj.Deleted {
 				obj.Obj = ramstore.Obj{
@@ -125,11 +151,4 @@ func handleServerConnection(conn net.Conn) {
 		}
 	}
 
-}
-
-func fromGob(i interface{}, b []byte) {
-	var s bytes.Buffer
-	s.Write(b)
-	gr := gob.NewDecoder(&s)
-	gr.Decode(i)
 }
