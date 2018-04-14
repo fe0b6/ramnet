@@ -18,6 +18,8 @@ func (c *ClientConn) Connet() (err error) {
 		return
 	}
 
+	log.Println("try connect to " + c.Addr)
+
 	c.Conn, err = net.Dial("tcp", c.Addr)
 	if err != nil {
 		if !strings.Contains(err.Error(), "connection refused") {
@@ -38,7 +40,6 @@ func (c *ClientConn) Connet() (err error) {
 func (c *ClientConn) reconnet() {
 	for {
 		c.Connected = false
-		log.Println("try connect to " + c.Addr)
 		err := c.Connet()
 		if err == nil {
 			break
