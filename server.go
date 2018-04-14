@@ -53,6 +53,8 @@ func handleServerConnection(conn net.Conn) {
 			break
 		}
 
+		log.Println("get rq", d)
+
 		var ans Ansdata
 		switch d.Action {
 		case "set":
