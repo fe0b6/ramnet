@@ -102,6 +102,9 @@ func handleServerConnection(conn net.Conn) {
 			})
 
 			ans.EOF = true
+
+		default:
+			continue
 		}
 
 		err = gw.Encode(ans)
