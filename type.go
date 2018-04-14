@@ -11,9 +11,18 @@ import (
 // Rqdata - Структура запроса
 type Rqdata struct {
 	Action string
-	Key    string
-	Obj    ramstore.Obj
-	Sync   map[string]int64
+	Data   []byte
+}
+
+// RqdataSet - стркутура объекта set
+type RqdataSet struct {
+	Key string
+	Obj ramstore.Obj
+}
+
+// RqdataGet - стркутура объекта get
+type RqdataGet struct {
+	Key string
 }
 
 // Ansdata - Структера ответа

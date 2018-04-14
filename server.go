@@ -1,6 +1,7 @@
 package ramnet
 
 import (
+	"bytes"
 	"encoding/gob"
 	"log"
 	"net"
@@ -56,22 +57,33 @@ func handleServerConnection(conn net.Conn) {
 		var ans Ansdata
 		switch d.Action {
 		case "set":
-			ans.Error = ramstore.Set(d.Key, d.Obj)
+			var obj RqdataSet
+			fromGob(&obj, d.Data)
+			log.Println(obj)
+
+			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
 				go transmit(d)
 			}
 
 		case "get":
-			ans.Obj, ans.Error = ramstore.Get(d.Key)
+			var obj RqdataGet
+			fromGob(&obj, d.Data)
+
+			ans.Obj, ans.Error = ramstore.Get(obj.Key)
 
 		case "del":
-			if !d.Obj.Deleted {
-				d.Obj = ramstore.Obj{
+			var obj RqdataSet
+			fromGob(&obj, d.Data)
+
+			if !obj.Obj.Deleted {
+				obj.Obj = ramstore.Obj{
 					Deleted: true,
 					Time:    time.Now().UnixNano(),
 				}
 			}
-			ans.Error = ramstore.Set(d.Key, d.Obj)
+
+			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
 				go transmit(d)
 			}
@@ -113,4 +125,11 @@ func handleServerConnection(conn net.Conn) {
 		}
 	}
 
+}
+
+func fromGob(i interface{}, b []byte) {
+	var s bytes.Buffer
+	s.Write(b)
+	gr := gob.NewDecoder(&s)
+	gr.Decode(i)
 }
