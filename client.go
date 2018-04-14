@@ -27,6 +27,8 @@ func (c *ClientConn) Connet() (err error) {
 	}
 	c.Connected = true
 
+	log.Println("connected to " + c.Addr)
+
 	c.Gr = gob.NewDecoder(c.Conn)
 	c.Gw = gob.NewEncoder(c.Conn)
 
@@ -35,6 +37,7 @@ func (c *ClientConn) Connet() (err error) {
 
 func (c *ClientConn) reconnet() {
 	for {
+		log.Println("try connect to " + c.Addr)
 		err := c.Connet()
 		if err == nil {
 			break
@@ -71,6 +74,10 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 
 	err = c.Gw.Encode(d)
 	if err != nil {
+		if strings.Contains(err.Error(), "broken pipe") {
+			c.reconnet()
+			return c.Send(d)
+		}
 		log.Println("[error]", err)
 		return
 	}

@@ -47,7 +47,9 @@ func handleServerConnection(conn net.Conn) {
 		var d Rqdata
 		err := gr.Decode(&d)
 		if err != nil {
-			log.Println("[error]", err)
+			if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
+				log.Println("[error]", err)
+			}
 			break
 		}
 
