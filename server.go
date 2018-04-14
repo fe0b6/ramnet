@@ -104,8 +104,11 @@ func handleServerConnection(conn net.Conn) {
 			ans.EOF = true
 
 		default:
+			log.Println("bad action", d)
 			continue
 		}
+
+		log.Println("send ans", ans)
 
 		err = gw.Encode(ans)
 		if err != nil {
