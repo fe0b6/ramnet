@@ -136,8 +136,6 @@ func handleServerConnection(conn net.Conn) {
 				}
 			}
 
-			log.Printf("%+v\n", obj)
-
 			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
 				go transmit(d)
