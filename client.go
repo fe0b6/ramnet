@@ -37,6 +37,7 @@ func (c *ClientConn) Connet() (err error) {
 
 func (c *ClientConn) reconnet() {
 	for {
+		c.Connected = false
 		log.Println("try connect to " + c.Addr)
 		err := c.Connet()
 		if err == nil {
