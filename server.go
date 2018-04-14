@@ -55,7 +55,7 @@ func handleServerConnection(conn net.Conn) {
 		switch d.Action {
 		case "set":
 			ans.Error = ramstore.Set(d.Key, d.Obj)
-			if ans.Error == nil {
+			if ans.Error == "" {
 				go transmit(d)
 			}
 
@@ -70,7 +70,7 @@ func handleServerConnection(conn net.Conn) {
 				}
 			}
 			ans.Error = ramstore.Set(d.Key, d.Obj)
-			if ans.Error == nil {
+			if ans.Error == "" {
 				go transmit(d)
 			}
 

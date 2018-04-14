@@ -18,7 +18,7 @@ type Rqdata struct {
 
 // Ansdata - Структера ответа
 type Ansdata struct {
-	Error error
+	Error string
 	Key   string
 	Obj   ramstore.Obj
 	EOF   bool
