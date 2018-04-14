@@ -44,14 +44,14 @@ func handleServerConnection(conn net.Conn) {
 	gw := gob.NewEncoder(conn)
 
 	for {
-		var d rqdata
+		var d Rqdata
 		err := gr.Decode(&d)
 		if err != nil {
 			log.Println("[error]", err)
 			break
 		}
 
-		var ans ansdata
+		var ans Ansdata
 		switch d.Action {
 		case "set":
 			ans.Error = ramstore.Set(d.Key, d.Obj)
@@ -82,7 +82,7 @@ func handleServerConnection(conn net.Conn) {
 				// Если объект nil то закончили обработку
 				if k == "" {
 					for n, d := range h {
-						err = gw.Encode(ansdata{Key: n, Obj: d})
+						err = gw.Encode(Ansdata{Key: n, Obj: d})
 						if err != nil {
 							log.Println("[error]", err)
 							continue

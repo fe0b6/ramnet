@@ -10,7 +10,8 @@ import (
 	"github.com/fe0b6/ramstore"
 )
 
-func (c *clientConn) connet() (err error) {
+// Connet - подключаемся к серверу
+func (c *ClientConn) Connet() (err error) {
 	c.Lock()
 	defer c.Unlock()
 	if c.Connected {
@@ -32,9 +33,9 @@ func (c *clientConn) connet() (err error) {
 	return
 }
 
-func (c *clientConn) reconnet() {
+func (c *ClientConn) reconnet() {
 	for {
-		err := c.connet()
+		err := c.Connet()
 		if err == nil {
 			break
 		}
@@ -42,15 +43,15 @@ func (c *clientConn) reconnet() {
 	}
 }
 
-func (c *clientConn) sync() {
-	err := c.send(rqdata{Action: "sync"})
+func (c *ClientConn) sync() {
+	err := c.Send(Rqdata{Action: "sync"})
 	if err != nil {
 		log.Println("[error]", err)
 		return
 	}
 
 	for {
-		var ans ansdata
+		var ans Ansdata
 		c.Gr.Decode(&ans)
 		if ans.EOF {
 			break
@@ -60,7 +61,8 @@ func (c *clientConn) sync() {
 	}
 }
 
-func (c *clientConn) send(d rqdata) (err error) {
+// Send - шлем данные
+func (c *ClientConn) Send(d Rqdata) (err error) {
 	if !c.Connected {
 		c.reconnet()
 	}
@@ -76,10 +78,10 @@ func (c *clientConn) send(d rqdata) (err error) {
 	return
 }
 
-func transmit(d rqdata) {
+func transmit(d Rqdata) {
 
 	for i := range clients {
-		clients[i].send(d)
+		clients[i].Send(d)
 	}
 
 }

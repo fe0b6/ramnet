@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	clients []*clientConn
+	clients []*ClientConn
 )
 
 // Run - запуск сервера
@@ -23,14 +23,14 @@ func Run() (exitChan chan bool) {
 
 	// Синхронизация при зхапуске
 	for _, addr := range config.GetStrArr("net", "route") {
-		c := clientConn{Addr: addr}
+		c := ClientConn{Addr: addr}
 		go c.sync()
 	}
 
-	clients = []*clientConn{}
+	clients = []*ClientConn{}
 	// Синхронизация при зхапуске
 	for _, addr := range config.GetStrArr("net", "route") {
-		c := clientConn{Addr: addr}
+		c := ClientConn{Addr: addr}
 		clients = append(clients, &c)
 	}
 
