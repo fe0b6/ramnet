@@ -53,8 +53,6 @@ func handleServerConnection(conn net.Conn) {
 			break
 		}
 
-		log.Println("get rq", d)
-
 		var ans Ansdata
 		switch d.Action {
 		case "set":
@@ -62,11 +60,9 @@ func handleServerConnection(conn net.Conn) {
 			if ans.Error == "" {
 				go transmit(d)
 			}
-			log.Println("set", d.Key)
 
 		case "get":
 			ans.Obj, ans.Error = ramstore.Get(d.Key)
-			log.Println("get", d.Key, ans.Error, string(ans.Obj.Data))
 
 		case "del":
 			if !d.Obj.Deleted {
@@ -79,8 +75,6 @@ func handleServerConnection(conn net.Conn) {
 			if ans.Error == "" {
 				go transmit(d)
 			}
-
-			log.Println("del", d.Key)
 
 		case "sync":
 			h := map[string]ramstore.Obj{}
@@ -109,8 +103,6 @@ func handleServerConnection(conn net.Conn) {
 			log.Println("bad action", d)
 			continue
 		}
-
-		log.Println("send ans", ans)
 
 		err = gw.Encode(ans)
 		if err != nil {
