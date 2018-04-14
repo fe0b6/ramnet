@@ -60,9 +60,11 @@ func handleServerConnection(conn net.Conn) {
 			if ans.Error == "" {
 				go transmit(d)
 			}
+			log.Println("set", d.Key)
 
 		case "get":
 			ans.Obj, ans.Error = ramstore.Get(d.Key)
+			log.Println("get", d.Key)
 
 		case "del":
 			if !d.Obj.Deleted {
@@ -75,6 +77,8 @@ func handleServerConnection(conn net.Conn) {
 			if ans.Error == "" {
 				go transmit(d)
 			}
+
+			log.Println("del", d.Key)
 
 		case "sync":
 			h := map[string]ramstore.Obj{}
@@ -102,7 +106,9 @@ func handleServerConnection(conn net.Conn) {
 
 		err = gw.Encode(ans)
 		if err != nil {
-			log.Println("[error]", err)
+			if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
+				log.Println("[error]", err)
+			}
 			continue
 		}
 	}
