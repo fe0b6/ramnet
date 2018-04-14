@@ -118,7 +118,7 @@ func handleServerConnection(conn net.Conn) {
 					h = map[string]ramstore.Obj{}
 				}
 
-				if strings.Contains(k, obj.Key) {
+				if k != "" && strings.Contains(k, obj.Key) {
 					h[k] = v
 				}
 			})
