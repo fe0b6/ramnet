@@ -64,7 +64,7 @@ func handleServerConnection(conn net.Conn) {
 
 		case "get":
 			ans.Obj, ans.Error = ramstore.Get(d.Key)
-			log.Println("get", d.Key)
+			log.Println("get", d.Key, ans.Error, string(ans.Obj.Data))
 
 		case "del":
 			if !d.Obj.Deleted {
