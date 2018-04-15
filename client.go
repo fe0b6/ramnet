@@ -10,7 +10,8 @@ import (
 	"github.com/fe0b6/ramstore"
 )
 
-const connectTimeout = 500 * time.Millisecond
+// ConnectTimeout - время ожидания ответа
+const ConnectTimeout = 500 * time.Millisecond
 
 // Connet - подключаемся к серверу
 func (c *ClientConn) Connet() (err error) {
@@ -77,7 +78,7 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	defer c.Unlock()
 
 	// Устанавливаем таймаут на запись
-	err = c.Conn.SetWriteDeadline(time.Now().Add(connectTimeout))
+	err = c.Conn.SetWriteDeadline(time.Now().Add(ConnectTimeout))
 	if err != nil {
 		log.Println("[error]", err)
 		return
