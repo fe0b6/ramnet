@@ -87,8 +87,6 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 		return
 	}
 
-	log.Println("go write")
-
 	err = c.Gw.Encode(d)
 	if err != nil {
 		c.Connected = false
