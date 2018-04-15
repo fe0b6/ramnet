@@ -100,7 +100,9 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	}
 
 	log.Println("go ok", err)
-	log.Panicln(c.Conn)
+	if c.Conn == nil {
+		log.Panicln("conn is nil")
+	}
 
 	return
 }
