@@ -41,6 +41,8 @@ func runServer() (ln net.Listener) {
 func handleServerConnection(conn net.Conn) {
 	defer conn.Close()
 
+	log.Println(conn.RemoteAddr(), conn.LocalAddr())
+
 	gr := gob.NewDecoder(conn)
 	gw := gob.NewEncoder(conn)
 
