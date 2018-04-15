@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/fe0b6/ramstore"
@@ -90,6 +91,16 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	err = c.Gw.Encode(d)
 	if err != nil {
 		c.Connected = false
+		if strings.Contains(err.Error(), "broken pipe") {
+			err = c.reconnet()
+			if err != nil {
+				log.Println("[error]", err)
+				return
+			}
+
+			return c.Send(d)
+		}
+
 		log.Println("[error]", err)
 		return
 	}
