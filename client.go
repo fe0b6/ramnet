@@ -86,6 +86,7 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	err = c.Gw.Encode(d)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") {
+			c.Unlock()
 			err = c.reconnet()
 			if err != nil {
 				log.Println("[error]", err)
