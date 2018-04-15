@@ -83,18 +83,25 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 		return
 	}
 
-	/*	// Устанавливаем таймаут на запись
-		err = c.Conn.SetWriteDeadline(time.Now().Add(ConnectTimeout))
-		if err != nil {
-			log.Println("[error]", err)
-			return
-		}*/
+	// Устанавливаем таймаут на запись
+	err = c.Conn.SetWriteDeadline(time.Now().Add(ConnectTimeout))
+	if err != nil {
+		log.Println("[error]", err)
+		return
+	}
 
 	log.Println("go write")
 
 	err = c.Gw.Encode(d)
 	if err != nil {
 		c.Connected = false
+		log.Println("[error]", err)
+		return
+	}
+
+	// Устанавливаем таймаут на запись
+	err = c.Conn.SetReadDeadline(time.Now().Add(ConnectTimeout))
+	if err != nil {
 		log.Println("[error]", err)
 		return
 	}
