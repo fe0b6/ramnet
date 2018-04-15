@@ -2,6 +2,7 @@ package ramnet
 
 import (
 	"encoding/gob"
+	"errors"
 	"log"
 	"net"
 	"time"
@@ -78,6 +79,7 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 
 	if c.Conn == nil {
 		c.Connected = false
+		err = errors.New("bad conn")
 		return
 	}
 
