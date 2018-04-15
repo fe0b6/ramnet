@@ -12,7 +12,7 @@ import (
 	"github.com/fe0b6/tools"
 )
 
-func runServer() (ln net.Listener) {
+func runServer(transmitChan chan Rqdata) (ln net.Listener) {
 	var err error
 	ln, err = net.Listen("tcp", config.GetStr("net", "host"))
 	if err != nil {
@@ -20,25 +20,22 @@ func runServer() (ln net.Listener) {
 		return
 	}
 
-	go func(ln net.Listener) {
+	go func(ln net.Listener, transmitChan chan Rqdata) {
 		for {
 			conn, err := ln.Accept()
 			if err != nil {
-				if strings.Contains(err.Error(), "use of closed network connection") {
-					break
-				}
 				log.Println("[error]", err)
-				continue
+				break
 			}
 
-			go handleServerConnection(conn)
+			go handleServerConnection(conn, transmitChan)
 		}
-	}(ln)
+	}(ln, transmitChan)
 
 	return
 }
 
-func handleServerConnection(conn net.Conn) {
+func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 	defer conn.Close()
 
 	//checkReconnect(conn.RemoteAddr().String())
@@ -50,9 +47,7 @@ func handleServerConnection(conn net.Conn) {
 		var d Rqdata
 		err := gr.Decode(&d)
 		if err != nil {
-			if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
-				log.Println("[error]", err)
-			}
+			log.Println("[error]", err)
 			break
 		}
 
@@ -62,9 +57,13 @@ func handleServerConnection(conn net.Conn) {
 			var obj RqdataSet
 			tools.FromGob(&obj, d.Data)
 
+			if debug {
+				log.Println("set", obj.Key)
+			}
+
 			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
-				go transmit(d)
+				transmitChan <- d
 			}
 
 		case "multi_set":
@@ -78,7 +77,7 @@ func handleServerConnection(conn net.Conn) {
 				}
 			}
 			if ans.Error == "" {
-				go transmit(d)
+				transmitChan <- d
 			}
 
 		case "get":
@@ -138,9 +137,13 @@ func handleServerConnection(conn net.Conn) {
 				}
 			}
 
+			if debug {
+				log.Println("del", obj.Key)
+			}
+
 			ans.Error = ramstore.Set(obj.Key, obj.Obj)
 			if ans.Error == "" {
-				go transmit(d)
+				transmitChan <- d
 			}
 
 		case "sync":
@@ -176,9 +179,7 @@ func handleServerConnection(conn net.Conn) {
 		if !d.Silent {
 			err = gw.Encode(ans)
 			if err != nil {
-				if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
-					log.Println("[error]", err)
-				}
+				log.Println("[error]", err)
 				continue
 			}
 		}

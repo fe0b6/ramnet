@@ -3,50 +3,41 @@ package ramnet
 import (
 	"log"
 	"net"
-	"time"
 
 	"github.com/fe0b6/config"
 )
 
 var (
 	clients []*ClientConn
+	debug   bool
 )
 
 // Run - запуск сервера
 func Run() (exitChan chan bool) {
+	debug = config.GetBool("debug")
 
-	// Запускаем сервер
-	ln := runServer()
+	// Запускаем демон распространения
+	transmitChan := make(chan Rqdata, 100)
+	go transmitDaemon(transmitChan)
 
-	// Канал для оповещения о выходе
-	exitChan = make(chan bool)
-	go waitExit(exitChan, ln)
-
+	// Создаем клиенты
 	clients = []*ClientConn{}
-	// Синхронизация при зхапуске
 	for _, addr := range config.GetStrArr("net", "route") {
 		c := ClientConn{Addr: addr}
 		clients = append(clients, &c)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	// Запускаем сервер
+	ln := runServer(transmitChan)
 
-	syncData()
-	/*	go func() {
-			time.Sleep(1 * time.Minute)
-			syncData()
-		}()
-	*/
+	// Канал для оповещения о выходе
+	exitChan = make(chan bool)
+	go waitExit(exitChan, ln)
+
+	// Запускаем синхронизацию
+	go syncDaemon()
 
 	return
-}
-
-func syncData() {
-	// Синхронизация при зхапуске
-	for _, addr := range config.GetStrArr("net", "route") {
-		c := ClientConn{Addr: addr}
-		go c.sync()
-	}
 }
 
 // Ждем сигнал о выходе

@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"log"
 	"net"
-	"strings"
 	"time"
 
 	"github.com/fe0b6/ramstore"
@@ -25,9 +24,7 @@ func (c *ClientConn) Connet() (err error) {
 
 	c.Conn, err = net.Dial("tcp", c.Addr)
 	if err != nil {
-		if !strings.Contains(err.Error(), "connection refused") {
-			log.Println("[error]", err)
-		}
+		log.Println("[error]", err)
 		return
 	}
 	c.Connected = true
@@ -41,7 +38,6 @@ func (c *ClientConn) Connet() (err error) {
 }
 
 func (c *ClientConn) reconnet() (err error) {
-	c.Connected = false
 	err = c.Connet()
 	if err == nil {
 		return
@@ -71,19 +67,20 @@ func (c *ClientConn) sync() {
 // Send - шлем данные
 func (c *ClientConn) Send(d Rqdata) (err error) {
 	if !c.Connected {
-		c.reconnet()
-	}
-	c.Lock()
-	defer c.Unlock()
-
-	if c.Conn == nil {
-		c.Connected = false
 		err = c.reconnet()
 		if err != nil {
 			log.Println("[error]", err)
 			return
 		}
 	}
+	c.Lock()
+	defer c.Unlock()
+
+	if c.Conn == nil {
+		c.Connected = false
+		return
+	}
+
 	// Устанавливаем таймаут на запись
 	err = c.Conn.SetWriteDeadline(time.Now().Add(ConnectTimeout))
 	if err != nil {
@@ -93,25 +90,10 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 
 	err = c.Gw.Encode(d)
 	if err != nil {
-		if strings.Contains(err.Error(), "broken pipe") {
-			c.Unlock()
-			err = c.reconnet()
-			if err != nil {
-				log.Println("[error]", err)
-				return
-			}
-			return c.Send(d)
-		}
+		c.Connected = false
 		log.Println("[error]", err)
 		return
 	}
 
 	return
-}
-
-func transmit(d Rqdata) {
-	d.Silent = true
-	for i := range clients {
-		go clients[i].Send(d)
-	}
 }
