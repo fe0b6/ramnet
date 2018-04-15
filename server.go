@@ -65,7 +65,7 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 			tools.FromGob(&obj, d.Data)
 
 			if debug {
-				log.Println("set", obj.Key)
+				log.Println("set", obj.Key, obj.Obj.Time)
 			}
 
 			ans.Error = ramstore.Set(obj.Key, obj.Obj)
