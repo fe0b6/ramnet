@@ -99,9 +99,12 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 		return
 	}
 
-	log.Println("go ok", err)
-	if c.Conn == nil {
-		log.Panicln("conn is nil")
+	var ok bool
+	err = c.Gr.Decode(&ok)
+	if err != nil {
+		c.Connected = false
+		log.Println("[error]", err)
+		return
 	}
 
 	return

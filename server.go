@@ -51,6 +51,13 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 			break
 		}
 
+		// Отвечаем что получили запрос
+		err = gw.Encode(true)
+		if err != nil {
+			log.Println("[error]", err)
+			break
+		}
+
 		var ans Ansdata
 		switch d.Action {
 		case "set":
