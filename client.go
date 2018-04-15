@@ -40,15 +40,14 @@ func (c *ClientConn) Connet() (err error) {
 	return
 }
 
-func (c *ClientConn) reconnet() {
-	for {
-		c.Connected = false
-		err := c.Connet()
-		if err == nil {
-			break
-		}
-		time.Sleep(1 * time.Minute)
+func (c *ClientConn) reconnet() (err error) {
+	c.Connected = false
+	err = c.Connet()
+	if err == nil {
+		return
 	}
+
+	return
 }
 
 func (c *ClientConn) sync() {
@@ -87,7 +86,11 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	err = c.Gw.Encode(d)
 	if err != nil {
 		if strings.Contains(err.Error(), "broken pipe") {
-			c.reconnet()
+			err = c.reconnet()
+			if err != nil {
+				log.Println("[error]", err)
+				return
+			}
 			return c.Send(d)
 		}
 		log.Println("[error]", err)
