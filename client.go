@@ -16,8 +16,6 @@ const ConnectTimeout = 500 * time.Millisecond
 
 // Connet - подключаемся к серверу
 func (c *ClientConn) Connet() (err error) {
-	c.Lock()
-	defer c.Unlock()
 	if c.Connected {
 		return
 	}
@@ -75,8 +73,6 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 			return
 		}
 	}
-	c.Lock()
-	defer c.Unlock()
 
 	if c.Conn == nil {
 		c.Connected = false
