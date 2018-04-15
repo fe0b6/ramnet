@@ -41,7 +41,7 @@ func runServer() (ln net.Listener) {
 func handleServerConnection(conn net.Conn) {
 	defer conn.Close()
 
-	checkReconnect(conn.RemoteAddr().String())
+	//checkReconnect(conn.RemoteAddr().String())
 
 	gr := gob.NewDecoder(conn)
 	gw := gob.NewEncoder(conn)
@@ -165,18 +165,22 @@ func handleServerConnection(conn net.Conn) {
 			})
 
 			ans.EOF = true
+		case "ping":
+			ans.EOF = true
 
 		default:
 			log.Println("bad action", d)
 			continue
 		}
 
-		err = gw.Encode(ans)
-		if err != nil {
-			if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
-				log.Println("[error]", err)
+		if !d.Silent {
+			err = gw.Encode(ans)
+			if err != nil {
+				if err.Error() != "EOF" && !strings.Contains(err.Error(), "connection reset by peer") {
+					log.Println("[error]", err)
+				}
+				continue
 			}
-			continue
 		}
 	}
 

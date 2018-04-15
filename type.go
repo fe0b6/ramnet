@@ -12,6 +12,7 @@ import (
 type Rqdata struct {
 	Action string
 	Data   []byte
+	Silent bool
 }
 
 // RqdataSet - стркутура объекта set
