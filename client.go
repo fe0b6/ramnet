@@ -3,6 +3,7 @@ package ramnet
 import (
 	"encoding/gob"
 	"errors"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -110,6 +111,16 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	err = c.Gr.Decode(&ok)
 	if err != nil {
 		c.Connected = false
+		if err == io.EOF {
+			err = c.reconnet()
+			if err != nil {
+				log.Println("[error]", err)
+				return
+			}
+
+			return c.Send(d)
+		}
+
 		log.Println("[error]", err)
 		return
 	}
