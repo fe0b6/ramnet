@@ -10,6 +10,8 @@ import (
 	"github.com/fe0b6/ramstore"
 )
 
+const connectTimeout = 500 * time.Millisecond
+
 // Connet - подключаемся к серверу
 func (c *ClientConn) Connet() (err error) {
 	c.Lock()
@@ -73,6 +75,13 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 	}
 	c.Lock()
 	defer c.Unlock()
+
+	// Устанавливаем таймаут на запись
+	err = c.Conn.SetWriteDeadline(time.Now().Add(connectTimeout))
+	if err != nil {
+		log.Println("[error]", err)
+		return
+	}
 
 	err = c.Gw.Encode(d)
 	if err != nil {
