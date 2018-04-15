@@ -89,7 +89,7 @@ func handleServerConnection(conn net.Conn) {
 			tools.FromGob(&objs, d.Data)
 
 			for i := range objs {
-				ans.Obj, ans.Error = ramstore.Get(objs[i].Key)
+				ans.Obj, _ = ramstore.Get(objs[i].Key)
 				err = gw.Encode(Ansdata{Key: objs[i].Key, Obj: ans.Obj})
 				if err != nil {
 					log.Println("[error]", err)
