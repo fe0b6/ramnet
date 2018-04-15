@@ -108,3 +108,13 @@ func transmit(d Rqdata) {
 	}
 
 }
+
+func checkReconnect(addr string) {
+	a := strings.Split(addr, ":")
+
+	for i := range clients {
+		if strings.Contains(clients[i].Addr, a[0]) {
+			clients[i].Connet()
+		}
+	}
+}
