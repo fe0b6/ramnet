@@ -183,6 +183,10 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 			tools.FromGob(&keys, d.Data)
 			d.Silent = true
 
+			if debug {
+				log.Println("subscribe", keys)
+			}
+
 			for _, k := range keys {
 				newSubscribe <- newSubscriber{
 					Key:  k,
@@ -197,6 +201,10 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 			var n RqdataNotify
 			tools.FromGob(&n, d.Data)
 			newNotify <- n
+
+			if debug {
+				log.Println("notify", n.Keys)
+			}
 
 		default:
 			log.Println("bad action", d)
