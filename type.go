@@ -26,6 +26,12 @@ type RqdataGet struct {
 	Key string
 }
 
+// RqdataNotify - стркутура объекта нотификации
+type RqdataNotify struct {
+	Keys []string
+	Data []byte
+}
+
 // Ansdata - Структера ответа
 type Ansdata struct {
 	Error string
@@ -42,4 +48,10 @@ type ClientConn struct {
 	Gr        *gob.Decoder
 	Gw        *gob.Encoder
 	sync.Mutex
+}
+
+type newSubscriber struct {
+	Key  string
+	Gw   *gob.Encoder
+	Conn net.Conn
 }

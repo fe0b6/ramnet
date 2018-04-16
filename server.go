@@ -178,6 +178,26 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 		case "ping":
 			ans.EOF = true
 
+		case "subscribe":
+			var keys []string
+			tools.FromGob(&keys, d.Data)
+			d.Silent = true
+
+			for _, k := range keys {
+				newSubscribe <- newSubscriber{
+					Key:  k,
+					Gw:   gw,
+					Conn: conn,
+				}
+			}
+
+		case "notify":
+			transmitChan <- d
+
+			var n RqdataNotify
+			tools.FromGob(&n, d.Data)
+			newNotify <- n
+
 		default:
 			log.Println("bad action", d)
 			continue
