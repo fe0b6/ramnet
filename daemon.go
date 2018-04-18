@@ -52,7 +52,6 @@ func notifyDaemon() {
 			conns[nc.Key] = cs
 
 		case n := <-newNotify:
-			log.Println(n.Keys)
 			for _, k := range n.Keys {
 				cs, ok := conns[k]
 				if !ok {

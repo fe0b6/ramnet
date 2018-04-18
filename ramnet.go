@@ -16,6 +16,8 @@ var (
 func Run() (exitChan chan bool) {
 	debug = config.GetBool("debug")
 
+	go notifyDaemon()
+
 	// Запускаем демон распространения
 	transmitChan := make(chan Rqdata, 100)
 	go transmitDaemon(transmitChan)
