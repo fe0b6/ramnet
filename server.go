@@ -2,6 +2,7 @@ package ramnet
 
 import (
 	"encoding/gob"
+	"io"
 	"log"
 	"net"
 	"strings"
@@ -47,7 +48,9 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 		var d Rqdata
 		err := gr.Decode(&d)
 		if err != nil {
-			log.Println("[error]", err)
+			if err != io.EOF {
+				log.Println("[error]", err)
+			}
 			break
 		}
 
