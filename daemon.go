@@ -35,8 +35,8 @@ func syncDaemon() {
 
 func notifyDaemon() {
 
-	newSubscribe = make(chan newSubscriber, 10)
 	newNotify = make(chan RqdataNotify, 100)
+	newSubscribe = make(chan newSubscriber, 10)
 
 	conns := map[string][]newSubscriber{}
 
