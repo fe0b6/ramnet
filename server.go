@@ -203,10 +203,6 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 
 			var n RqdataNotify
 			tools.FromGob(&n, d.Data)
-			if debug {
-				log.Println("notify", "get")
-			}
-
 			newNotify <- n
 
 			if debug {
