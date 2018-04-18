@@ -201,12 +201,12 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 		case "notify":
 			transmitChan <- d
 
+			var n RqdataNotify
+			tools.FromGob(&n, d.Data)
 			if debug {
 				log.Println("notify", "get")
 			}
 
-			var n RqdataNotify
-			tools.FromGob(&n, d.Data)
 			newNotify <- n
 
 			if debug {
