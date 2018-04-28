@@ -94,7 +94,9 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 			var obj RqdataSet
 			tools.FromGob(&obj, d.Data)
 
+			d.Silent = true
 			transmitChan <- d
+
 			if debug {
 				log.Println("incr", obj.Key, obj.Obj.Time)
 			}
