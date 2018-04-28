@@ -90,6 +90,17 @@ func handleServerConnection(conn net.Conn, transmitChan chan Rqdata) {
 				transmitChan <- d
 			}
 
+		case "incr":
+			var obj RqdataSet
+			tools.FromGob(&obj, d.Data)
+
+			transmitChan <- d
+			if debug {
+				log.Println("incr", obj.Key, obj.Obj.Time)
+			}
+
+			ans.Obj = ramstore.Incr(obj.Key, obj.Obj)
+
 		case "get":
 			var obj RqdataGet
 			tools.FromGob(&obj, d.Data)
