@@ -126,7 +126,9 @@ func (c *ClientConn) Send(d Rqdata) (err error) {
 			return c.Send(d)
 		}
 
-		log.Println("[error]", err)
+		if !strings.Contains(err.Error(), "i/o timeout") {
+			log.Println("[error]", err)
+		}
 		return
 	}
 
