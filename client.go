@@ -21,7 +21,7 @@ func (c *ClientConn) Connet() (err error) {
 		return
 	}
 
-	log.Println("try connect to " + c.Addr)
+	//log.Println("try connect to " + c.Addr)
 
 	c.Conn, err = net.Dial("tcp", c.Addr)
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *ClientConn) Connet() (err error) {
 	}
 	c.Connected = true
 
-	log.Println("connected to " + c.Addr)
+	//log.Println("connected to " + c.Addr)
 
 	c.Gr = gob.NewDecoder(c.Conn)
 	c.Gw = gob.NewEncoder(c.Conn)
